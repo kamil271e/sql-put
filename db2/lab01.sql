@@ -52,7 +52,7 @@ BEGIN
  SELECT nazwisko, etat
  INTO vNazwisko, vEtat
  FROM pracownicy
- WHERE placa_pod = (SELECT MAX(placa_pod) FROM Pracownicy);
+ WHERE placa_pod = (SELECT MAX(placa_pod) FROM Pracownicy) AND ROWNUM = 1;
 
  DBMS_OUTPUT.PUT_LINE('Najlepiej zarabia pracownik ' || vNazwisko);
  DBMS_OUTPUT.PUT_LINE('Pracuje on jako ' || vEtat);
@@ -65,7 +65,7 @@ BEGIN
  SELECT *
  INTO vPracownik
  FROM pracownicy
- WHERE placa_pod = (SELECT MAX(placa_pod) FROM Pracownicy);
+ WHERE placa_pod = (SELECT MAX(placa_pod) FROM Pracownicy) AND ROWNUM = 1;
 
  DBMS_OUTPUT.PUT_LINE('Najlepiej zarabia pracownik ' || vPracownik.nazwisko);
  DBMS_OUTPUT.PUT_LINE('Pracuje on jako ' || vPracownik.etat);
@@ -76,7 +76,7 @@ DECLARE
  SUBTYPE tPieniadze IS NUMBER(7,2);
  vZarobki tPieniadze;
 BEGIN
- select placa_pod*12 + COALESCE(placa_dod,0)*12
+ select placa_pod*12 + NVL(placa_dod,0)*12
  into vZarobki
  from pracownicy
  where nazwisko = 'SLOWINSKI';
@@ -86,12 +86,13 @@ END;
 
 --ZAD8
 DECLARE
- vSeconds POSITIVE := TO_CHAR(current_date, 'ss') ;
+ vSeconds VARCHAR(2) := TO_CHAR(current_date, 'ss');
 BEGIN
-    WHILE vSeconds != 25 LOOP
+    WHILE vSeconds != '25' LOOP
+        DBMS_SESSION.SLEEP(1);
         vSeconds := TO_CHAR(current_date, 'ss');
     END LOOP;
-  DBMS_OUTPUT.PUT_LINE(vSeconds);
+    DBMS_OUTPUT.PUT_LINE('Nadeszła ' || vSeconds || ' sekunda!');
 END;
 
 --ZAD9
@@ -119,7 +120,7 @@ BEGIN
  WHILE vStart < vStop LOOP
     IF TO_CHAR(vStart,'D') = '5'
     AND TO_CHAR(vStart,'dd') = '13' THEN
-     DBMS_OUTPUT.PUT_LINE(vStart);
+     DBMS_OUTPUT.PUT_LINE(TO_CHAR(vStart, 'dd-mm-yyyy'));
     END IF;
     vStart := vStart + 7;
  END LOOP;
